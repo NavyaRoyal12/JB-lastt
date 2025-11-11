@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Event Details - JBEvents</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container event-details">
+    <h1 id="event-title">Event Details</h1>
+    <img id="event-image" src="" alt="Event">
+    <p id="event-description"></p>
+    <p><strong>Date:</strong> <span id="event-date"></span></p>
+    <p><strong>Location:</strong> <span id="event-location"></span></p>
+    <p><strong>Price:</strong> <span id="event-price"></span></p>
+    <p><strong>Discount:</strong> <span id="event-discount"></span></p>
+
+    <h3>Book This Event</h3>
+    <form id="bookingForm">
+      <input type="text" id="customerName" placeholder="Your Name" required>
+      <input type="email" id="customerEmail" placeholder="Your Email" required>
+      <input type="tel" id="customerMobile" placeholder="Your Mobile Number" required>
+      <button type="submit" class="btn" style="background-color: green;">Book Now</button>
+    </form>
+
+    <button class="btn" onclick="window.history.back()">← Back</button>
+  </div>
+
+  <script>
+    const selectedEvent = JSON.parse(localStorage.getItem("selectedEvent"));
+
+    if (selectedEvent) {
+      document.getElementById("event-title").textContent = selectedEvent.title;
+      document.getElementById("event-image").src = selectedEvent.image;
+      document.getElementById("event-description").textContent = selectedEvent.description;
+      document.getElementById("event-date").textContent = selectedEvent.date;
+      document.getElementById("event-location").textContent = selectedEvent.location;
+      document.getElementById("event-price").textContent = selectedEvent.price;
+      document.getElementById("event-discount").textContent = selectedEvent.discount;
+    } else {
+      document.body.innerHTML = "<h2 style='text-align:center;'>Event not found. Please go back.</h2>";
+    }
+
+    document.getElementById("bookingForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const bookingData = {
+        eventTitle: selectedEvent.title,
+        eventDate: selectedEvent.date,
+        eventLocation: selectedEvent.location,
+        price: selectedEvent.price,
+        discount: selectedEvent.discount,
+        description: selectedEvent.description,
+        customerName: document.getElementById("customerName").value,
+        customerEmail: document.getElementById("customerEmail").value,
+        customerMobile: document.getElementById("customerMobile").value,
+      };
+
+      try {
+        const res = await fetch("http://localhost:8080/api/bookings", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(bookingData),
+        });
+
+        if (res.ok) {
+          alert("✅ Booking Confirmed!");
+          window.location.href = "index.html";
+        } else {
+          alert("❌ Booking Failed!");
+        }
+      } catch (err) {
+        console.error(err);
+        alert("⚠️ Error connecting to backend.");
+      }
+    });
+  </script>
+</body>
+</html>
